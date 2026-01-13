@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>AR Try-On v21 (Horizontal Rotation)</title>
+    <title>AR Try-On v22 (Photo Capture)</title>
     <style>
         body { margin: 0; padding: 0; overflow: hidden; background-color: #000; font-family: sans-serif; }
         
@@ -17,21 +17,52 @@
         }
         #ui-container {
             position: absolute; bottom: 30px; left: 0; width: 100%;
-            display: flex; justify-content: center; z-index: 10; gap: 20px;
+            display: flex; justify-content: center; align-items: center; z-index: 10; gap: 30px;
         }
         .arrow-btn {
             background: rgba(255, 255, 255, 0.9); border: none; border-radius: 50%;
-            width: 60px; height: 60px; font-size: 30px;
+            width: 50px; height: 50px; font-size: 24px;
             display: flex; align-items: center; justify-content: center;
             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
             cursor: pointer;
             -webkit-tap-highlight-color: transparent;
         }
+        /* Стиль для кнопки камеры */
+        .camera-btn {
+            width: 70px; height: 70px;
+            border-radius: 50%;
+            border: 4px solid white;
+            background-color: transparent;
+            position: relative;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            display: flex; align-items: center; justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .camera-btn::after {
+            content: '';
+            width: 55px; height: 55px;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.1s;
+        }
+        .camera-btn:active::after {
+            transform: scale(0.9);
+            background-color: #ddd;
+        }
+        
         #loading-text {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             color: white; font-size: 16px; z-index: 5; 
             background: rgba(0,0,0,0.6); padding: 15px 25px; border-radius: 30px;
             text-align: center; pointer-events: none;
+        }
+        
+        /* Эффект вспышки */
+        #flash {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: white; opacity: 0; pointer-events: none; z-index: 20;
+            transition: opacity 0.2s;
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
@@ -50,11 +81,15 @@
 <body>
 
     <div id="loading-text">Kamera başlatılıyor...<br>Elini göster (Покажи руку)</div>
+    <div id="flash"></div> <!-- Элемент для вспышки -->
+    
     <video id="input_video" playsinline muted autoplay></video>
     <canvas id="output_canvas"></canvas>
 
     <div id="ui-container">
         <button class="arrow-btn" id="prev-btn">◀</button>
+        <!-- Кнопка фото по центру -->
+        <div class="camera-btn" id="camera-btn"></div>
         <button class="arrow-btn" id="next-btn">▶</button>
     </div>
 
@@ -76,18 +111,21 @@
         const OFFSET_Y = 0.45;  
         const OFFSET_X = 0.05;  
         const OFFSET_Z = 1.0;   
-
-        // --- ВРАЩЕНИЕ ---
-        // Было 0.0. Ставим Math.PI / 2 (это 90 градусов).
-        // Это развернет кольцо из "вертикального" в "горизонтальное" положение на пальце.
-        const ROTATION_Z_OFFSET = Math.PI / 2; 
+        const ROTATION_Z_OFFSET = Math.PI / 2; // Горизонтально
 
         // Scene
         const scene = new THREE.Scene();
         const camera3D = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         camera3D.position.z = 2;
 
-        const renderer = new THREE.WebGLRenderer({ canvas: canvasElement, alpha: true, antialias: true });
+        // --- ВАЖНО: preserveDrawingBuffer: true ---
+        // Это позволяет нам скопировать изображение с 3D canvas
+        const renderer = new THREE.WebGLRenderer({ 
+            canvas: canvasElement, 
+            alpha: true, 
+            antialias: true, 
+            preserveDrawingBuffer: true 
+        });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.outputEncoding = THREE.sRGBEncoding;
@@ -121,7 +159,6 @@
                 scene.add(currentRing);
             });
         }
-
         loadRing(0);
 
         // MediaPipe
@@ -140,39 +177,27 @@
 
         hands.onResults((results) => {
             renderer.clear();
-            
             if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
                 if (!textHidden) {
                     loadingText.style.display = 'none';
                     textHidden = true;
                 }
-                
                 const landmarks = results.multiHandLandmarks[0];
-                
-                // СРЕДНИЙ ПАЛЕЦ
                 const pBase = landmarks[9]; 
                 const pJoint = landmarks[10]; 
 
                 if (currentRing) {
-                    // Координаты
                     const x = (pBase.x + pJoint.x) / 2;
                     const y = (pBase.y + pJoint.y) / 2;
-
                     let screenX = (x - 0.5) * 10 + OFFSET_X; 
                     let screenY = -(y - 0.5) * 10 + OFFSET_Y;
-                    const screenZ = -6 + OFFSET_Z; 
-                    
+                    const screenZ = -5 + OFFSET_Z; 
                     currentRing.position.set(screenX, screenY, screenZ);
-
-                    // Вращение
                     const dx = pJoint.x - pBase.x;
                     const dy = pJoint.y - pBase.y;
                     const angle = Math.atan2(dy, dx);
-                    
-                    // Применяем смещение на 90 градусов
-                    currentRing.rotation.z = (angle - Math.PI / 2) + ROTATION_Z_OFFSET;
-                    
-                    currentRing.rotation.x = 0.2;
+                    currentRing.rotation.z = (angle - Math.PI / 1.5) + ROTATION_Z_OFFSET;
+                    currentRing.rotation.x = 0.1;
                 }
             }
             renderer.render(scene, camera3D);
@@ -186,18 +211,59 @@
             height: 720,
             facingMode: 'environment'
         });
-
         camera.start();
 
+        // UI Logic
         document.getElementById('next-btn').onclick = () => {
             currentModelIndex = (currentModelIndex + 1) % models.length;
             loadRing(currentModelIndex);
         }
-
         document.getElementById('prev-btn').onclick = () => {
             currentModelIndex = (currentModelIndex - 1 + models.length) % models.length;
             loadRing(currentModelIndex);
         }
+
+        // --- ЛОГИКА ФОТО ---
+        document.getElementById('camera-btn').addEventListener('click', () => {
+            // 1. Эффект вспышки
+            const flash = document.getElementById('flash');
+            flash.style.opacity = '1';
+            setTimeout(() => { flash.style.opacity = '0'; }, 100);
+
+            // 2. Создаем временный холст для склейки
+            const tempCanvas = document.createElement('canvas');
+            const w = videoElement.videoWidth || window.innerWidth;
+            const h = videoElement.videoHeight || window.innerHeight;
+            
+            // Устанавливаем размер скриншота равным размеру видео
+            tempCanvas.width = w;
+            tempCanvas.height = h;
+            const ctx = tempCanvas.getContext('2d');
+
+            // 3. Рисуем видео (Камера)
+            // Мы используем videoElement как источник
+            // Внимание: если видео отзеркалено (фронталка), нужно отзеркалить и при рисовании
+            // Но обычно facingMode: 'environment' (задняя камера) не зеркалится.
+            // Если вы используете селфи-камеру, возможно придется добавить scale(-1, 1).
+            ctx.drawImage(videoElement, 0, 0, w, h);
+
+            // 4. Рисуем 3D кольцо сверху
+            // Нам нужно "растянуть" WebGL канвас на размер нашего скриншота
+            ctx.drawImage(canvasElement, 0, 0, w, h);
+
+            // 5. Сохранение
+            try {
+                const dataURL = tempCanvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                const date = new Date().toISOString().slice(0,19).replace(/:/g, "-");
+                link.download = `ar-ring-${date}.png`;
+                link.href = dataURL;
+                link.click();
+            } catch (e) {
+                console.error("Ошибка сохранения:", e);
+                alert("Не удалось сохранить фото. Проверьте права доступа.");
+            }
+        });
 
         window.addEventListener('resize', () => {
             camera3D.aspect = window.innerWidth / window.innerHeight;
@@ -207,6 +273,3 @@
     </script>
 </body>
 </html>
-
-
-
