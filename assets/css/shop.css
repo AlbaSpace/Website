@@ -72,15 +72,15 @@
 /* Payment icons shown above product name */
 .payment-icons {
   display: flex;
-  gap: 16px;
+  gap: 32px;
   justify-content: center;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 32px;
   position: relative;
   z-index: 2;
 }
 .payment-icons img {
-  width: 26px;
+  width: 52px;
   height: auto;
   display: block;
   opacity: 0.95;
@@ -95,8 +95,8 @@
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: calc(100% + 12px);
-  height: 36px;
+  width: calc(100% + 24px);
+  height: 72px;
   background: rgba(255,255,255,0.06);
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
@@ -133,17 +133,17 @@
   }
 
   .payment-icons {
-    gap: 6px;
-    margin-bottom: 6px;
+    gap: 12px;
+    margin-bottom: 12px;
   }
 
   .payment-icons img {
-    width: 18px;
+    width: 36px;
   }
 
   .payment-icons-link {
-    height: 24px;
-    width: calc(100% + 8px);
+    height: 48px;
+    width: calc(100% + 16px);
   }
 
   .product-card .product-info {
