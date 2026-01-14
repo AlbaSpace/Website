@@ -155,8 +155,10 @@ runAfterDomReady(() => {
     ensureModelPreloader();
   }
   // 7. GLOBAL AI WIDGET (Albamen / Albaman) — текстовый чат
+  // Отключаем авто-открытие по умолчанию — будем открывать только по клику
+  window.__allowAiAutoOpen = false;
   injectAiWidget();
-  ensureAiWidgetPinned();
+  // ensureAiWidgetPinned(); // disabled: вызывала автоматическое открытие на некоторых страницах
   // 8. Голосовой виджет — кнопка + модалка + подключение script.js
   injectVoiceWidget();
   // 9. Плавное появление блоков на всех страницах
