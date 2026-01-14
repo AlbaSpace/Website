@@ -252,6 +252,36 @@ runAfterDomReady(() => {
     `;
     document.body.appendChild(panel);
 
+    // Ensure panels are hidden by default and attach delegated handlers
+    // This prevents accidental auto-open and makes close buttons reliable
+    try {
+      panel.classList.remove('ai-open');
+      // Delegated click handler: open/close reliably even with duplicate IDs
+      if (!window.__albamen_ai_delegated) {
+        window.__albamen_ai_delegated = true;
+        document.addEventListener('click', (ev) => {
+          const close = ev.target.closest && ev.target.closest('.ai-close-icon');
+          if (close) {
+            const p = close.closest('.ai-panel-global, .ai-panel-voice');
+            if (p) p.classList.remove('ai-open');
+            return;
+          }
+          const openChat = ev.target.closest && ev.target.closest('#ai-avatar-trigger, #ai-call-trigger, .ai-call-btn, .ai-hero-avatar');
+          if (openChat) {
+            const p = document.querySelector('.ai-panel-global');
+            if (p) p.classList.add('ai-open');
+            return;
+          }
+          const openVoice = ev.target.closest && ev.target.closest('#ai-voice-btn, .ai-voice-btn');
+          if (openVoice) {
+            const vp = document.querySelector('.ai-panel-voice');
+            if (vp) vp.classList.add('ai-open');
+            return;
+          }
+        }, { capture: false });
+      }
+    } catch (e) { /* safe fallback */ }
+
     const avatarTrigger = document.getElementById('ai-avatar-trigger');
     const closeBtn = document.getElementById('ai-close-btn');
     const sendBtn = document.getElementById('ai-send-btn');
