@@ -1,6 +1,8 @@
 // Unified include.js for AlbaSpace website (Turkish)
 // Includes: Dynamic Header/Footer, AI Widget (Text+Voice), Analytics (GA4 + Yandex)
 runAfterDomReady(() => {
+  // Временно отключаем AI-виджеты на сайте (скрыть пока на время)
+  window.__disableAiWidgets = true;
   // 1. ЗАПУСК АНАЛИТИКИ (В первую очередь)
   injectAnalytics();
   // 2. Favicon
@@ -157,10 +159,15 @@ runAfterDomReady(() => {
   // 7. GLOBAL AI WIDGET (Albamen / Albaman) — текстовый чат
   // Отключаем авто-открытие по умолчанию — будем открывать только по клику
   window.__allowAiAutoOpen = false;
-  injectAiWidget();
-  // ensureAiWidgetPinned(); // disabled: вызывала автоматическое открытие на некоторых страницах
-  // 8. Голосовой виджет — кнопка + модалка + подключение script.js
-  injectVoiceWidget();
+  // Временно отключаем оба AI-виджета. Установите `window.__disableAiWidgets = false` для включения.
+  if (!window.__disableAiWidgets) {
+    injectAiWidget();
+    // ensureAiWidgetPinned(); // disabled: вызывала автоматическое открытие на некоторых страницах
+    // 8. Голосовой виджет — кнопка + модалка + подключение script.js
+    injectVoiceWidget();
+  } else {
+    console.info('[include.js] AI widgets are disabled by __disableAiWidgets flag');
+  }
   // 9. Плавное появление блоков на всех страницах
   initScrollReveal();
 
