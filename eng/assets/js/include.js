@@ -6,6 +6,8 @@
 // buttons and a call shortcut.
 
 runAfterDomReady(() => {
+  // Временно отключаем AI-виджеты на сайте (скрыть пока на время)
+  window.__disableAiWidgets = true;
   // Ensure a valid favicon is present
   (function ensureFavicon() {
     try {
@@ -125,7 +127,12 @@ runAfterDomReady(() => {
   // ===== GLOBAL AI WIDGET (Albamen / Albaman) =====
   // Отключаем авто-открытие виджета по умолчанию — открываем только по клику
   window.__allowAiAutoOpen = false;
-  injectAiWidget();
+  // Временно отключаем AI-виджет. Установите `window.__disableAiWidgets = false` для включения.
+  if (!window.__disableAiWidgets) {
+    injectAiWidget();
+  } else {
+    console.info('[include.js] AI widgets are disabled by __disableAiWidgets flag');
+  }
 
   function injectAiWidget() {
     const path = window.location.pathname || '/';
@@ -682,7 +689,12 @@ function injectFooterStyles() {
 
 
 // ===== GLOBAL AI WIDGET (Albamen / Albaman) =====
-  injectAiWidget();
+  // Временно отключаем AI-виджет. Установите `window.__disableAiWidgets = false` для включения.
+  if (!window.__disableAiWidgets) {
+    injectAiWidget();
+  } else {
+    console.info('[include.js] AI widgets are disabled by __disableAiWidgets flag');
+  }
 
   function injectAiWidget() {
     const path = window.location.pathname || '/';
@@ -876,8 +888,12 @@ function injectFooterStyles() {
 
 
 
-
-injectAiWidget();  // вызов, чтобы код сработал
+// Вызов для совместимости: обёрнут в проверку флага
+if (!window.__disableAiWidgets) {
+  injectAiWidget();  // вызов, чтобы код сработал
+} else {
+  console.info('[include.js] final call skipped: AI widgets disabled');
+}
 
 });  // закрывает runAfterDomReady(() => { ... })
 
