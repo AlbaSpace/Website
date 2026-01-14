@@ -11,7 +11,7 @@
     return btn;
   }
 
-  // atlas data will be loaded dfgdfgdfgfgdfgdfgdynamically from the generated file
+  // atlas data will be loaded dynamically from the generated file 
   var atlasTR = [];
   var atlasEN = [];
   import('/assets/data/atlas-pages.generated.js').then(function(mod){
