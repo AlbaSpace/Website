@@ -123,6 +123,8 @@ runAfterDomReady(() => {
 // ... (Начало файла без изменений: runAfterDomReady, ensureFavicon, includes...)
 
   // ===== GLOBAL AI WIDGET (Albamen / Albaman) =====
+  // Отключаем авто-открытие виджета по умолчанию — открываем только по клику
+  window.__allowAiAutoOpen = false;
   injectAiWidget();
 
   function injectAiWidget() {
