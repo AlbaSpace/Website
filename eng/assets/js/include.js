@@ -852,3 +852,5 @@ function injectFooterStyles() {
 injectAiWidget();  // вызов, чтобы код сработал
 
 });  // закрывает runAfterDomReady(() => { ... })
+
+
