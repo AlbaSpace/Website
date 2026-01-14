@@ -142,6 +142,12 @@ runAfterDomReady(() => {
             enhanceFooter(el);
             ensureModelPreloader();
           }
+          // After an include is injected, re-scan for revealable elements so
+          // dynamically-inserted content (header/footer) and content shown by
+          // interactive controls are observed and animated.
+          try {
+            if (typeof initScrollReveal === 'function') initScrollReveal();
+          } catch (e) { /* ignore errors during init */ }
         })
         .catch((err) => console.error("[include.js] include failed", url, err));
     });
@@ -256,7 +262,13 @@ runAfterDomReady(() => {
     const recognition = SpeechRec ? new SpeechRec() : null;
     let isListening = false;
 
-    const openPanel = () => panel.classList.add('ai-open');
+    const openPanel = (evt) => {
+      // Only open in response to a trusted user event, or when explicitly allowed.
+      if (!evt || evt.isTrusted !== true) {
+        if (!window.__allowAiAutoOpen) return;
+      }
+      panel.classList.add('ai-open');
+    };
     const closePanel = () => {
       panel.classList.remove('ai-open');
       panel.classList.remove('chat-active');

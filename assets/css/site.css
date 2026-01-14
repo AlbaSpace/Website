@@ -171,6 +171,38 @@ body{
   object-fit:contain;
 }
 
+/* Force header/footer logos and social icons to display without
+   framed background, rounded clipping or shadows. This targets only
+   the images and their immediate link wrappers in header/footer so
+   other containers remain unchanged. */
+.header-logo img,
+.header-logo .albaspace-img,
+.header-logo img.albaspace-img,
+.footer-logo img,
+.header-social img,
+.header-social a img,
+.footer-social img,
+.footer-social a img,
+.footer-social--row img,
+.top-lang-switch .lang-flag img {
+  border-radius: 0 !important;
+  background: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  background-color: transparent !important;
+  object-fit: contain !important;
+}
+
+/* Remove background 'panel' used behind social icons/flags in header/footer */
+.header-social a,
+.top-lang-switch a,
+.footer-social a {
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
 /* меню чуть правее и по центру между логотипом и соцсетями */
 .main-nav{
   display:flex;
@@ -2214,6 +2246,10 @@ model-viewer{
     right: 10px;
     bottom: 10px;
     gap: 8px;
+  }
+  /* shift floating AI call button 30% to the right on small screens */
+  @media (max-width: 768px) {
+    .ai-floating { transform: translateX(30%); }
   }
   .ai-hero-avatar {
     width: 80px;

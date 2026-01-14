@@ -212,7 +212,12 @@ runAfterDomReady(() => {
     const msgList = document.getElementById('ai-messages-list');
     const statusText = document.getElementById('ai-status-text');
 
-    const openPanel = () => panel.classList.add('ai-open');
+    const openPanel = (evt) => {
+      if (!evt || evt.isTrusted !== true) {
+        if (!window.__allowAiAutoOpen) return;
+      }
+      panel.classList.add('ai-open');
+    };
     const closePanel = () => {
       panel.classList.remove('ai-open');
       panel.classList.remove('chat-active');
@@ -736,7 +741,12 @@ function injectFooterStyles() {
     const msgList = document.getElementById('ai-messages-list');
     const statusText = document.getElementById('ai-status-text');
 
-    const openPanel = () => panel.classList.add('ai-open');
+    const openPanel = (evt) => {
+      if (!evt || evt.isTrusted !== true) {
+        if (!window.__allowAiAutoOpen) return;
+      }
+      panel.classList.add('ai-open');
+    };
     const closePanel = () => {
       panel.classList.remove('ai-open');
       panel.classList.remove('chat-active');

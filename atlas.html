@@ -254,11 +254,15 @@
       const apply = (filter) => {
         const f = String(filter || 'all').toLowerCase();
         chips.forEach(c => c.classList.toggle('active', c.dataset.filter === f));
-
         cards.forEach(card => {
           const cat = String(card.dataset.category || '').toLowerCase();
           card.style.display = (f === 'all' || cat === f) ? '' : 'none';
         });
+
+        // Re-run global reveal scanner so newly-shown cards get observed
+        if (typeof initScrollReveal === 'function') {
+          try { initScrollReveal(); } catch (e) { /* ignore */ }
+        }
       };
 
       const onActivate = (chip) => apply(chip.dataset.filter);

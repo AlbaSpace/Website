@@ -465,6 +465,11 @@ section.grid {
           const show = (f === 'all') || (cat === f);
           card.style.display = show ? '' : 'none';
         });
+
+        // Ensure reveal scanner runs for newly-visible cards
+        if (typeof initScrollReveal === 'function') {
+          try { initScrollReveal(); } catch (e) { /* ignore */ }
+        }
       };
 
       const activate = (chip) => apply(chip.dataset.filter);
